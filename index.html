@@ -8,6 +8,10 @@
 <meta name="theme-color" content="#4D96FF">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="تلوين">
+<meta name="mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;700;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -155,6 +159,39 @@
     touch-action:none;
     cursor:crosshair;
     background:white;
+  }
+
+  /* progress bar */
+  .progress-wrap{
+    max-width:560px;
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    font-family:'Baloo Bhaijaan 2';
+    font-weight:700;
+    color:var(--ink);
+    font-size:14px;
+  }
+  .progress-track{
+    flex:1;
+    height:14px;
+    background:#EFEFEF;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--green), #4dd67f);
+    border-radius:20px;
+    transition: width .25s ease;
+  }
+  .progress-pct{
+    min-width:44px;
+    text-align:center;
   }
 
   /* palette */
@@ -339,6 +376,12 @@
 
   <div class="levels" id="levels"></div>
 
+  <div class="progress-wrap">
+    <span>🖌️</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+
   <div class="page-wrap">
     <canvas id="board" width="520" height="520"></canvas>
   </div>
@@ -422,6 +465,13 @@ function line(x1,y1,x2,y2,w){
 function ellipse(cx,cy,rx,ry,rot){
   ctx.beginPath();
   ctx.ellipse(cx,cy,rx,ry,rot||0,0,Math.PI*2);
+  ctx.stroke();
+}
+function polygon(points){
+  ctx.beginPath();
+  ctx.moveTo(points[0][0], points[0][1]);
+  for(let i=1;i<points.length;i++) ctx.lineTo(points[i][0], points[i][1]);
+  ctx.closePath();
   ctx.stroke();
 }
 
@@ -548,12 +598,138 @@ const LEVELS = [
       {x:290,y:370,label:"الرِجل"},
     ]
   },
+  {
+    title: "سمكة صغيرة",
+    stars: 2,
+    draw(){
+      setupStroke();
+      // body
+      ellipse(280,260,100,65,0);
+      // tail (فجوة عن الجسم)
+      triangle(160,220, 160,300, 95,260);
+      // eye (داخل الجسم)
+      circle(335,235,13);
+      // fin (فجوة فوق الجسم)
+      triangle(255,175, 305,175, 280,130);
+    },
+    points: [
+      {x:280,y:260,label:"جسم السمكة"},
+      {x:125,y:260,label:"الذيل"},
+      {x:335,y:235,label:"العين"},
+      {x:280,y:155,label:"الزعنفة"},
+    ]
+  },
+  {
+    title: "قطة ودودة",
+    stars: 3,
+    draw(){
+      setupStroke();
+      // head
+      circle(260,300,120);
+      // ears (فجوة عن الرأس)
+      triangle(130,195, 175,85, 220,205);
+      triangle(300,205, 345,85, 390,195);
+      // eyes (داخل الرأس)
+      circle(215,280,16);
+      circle(305,280,16);
+      // nose (داخل الرأس)
+      triangle(242,325, 278,325, 260,352);
+    },
+    points: [
+      {x:260,y:395,label:"الرأس"},
+      {x:175,y:150,label:"الأذن اليسرى"},
+      {x:345,y:150,label:"الأذن اليمنى"},
+      {x:215,y:280,label:"العين اليسرى"},
+      {x:305,y:280,label:"العين اليمنى"},
+      {x:260,y:335,label:"الأنف"},
+    ]
+  },
+  {
+    title: "قارب شراعي",
+    stars: 3,
+    draw(){
+      setupStroke();
+      // hull
+      polygon([[140,380],[380,380],[340,430],[180,430]]);
+      // main sail
+      triangle(260,120, 260,370, 130,370);
+      // small sail
+      triangle(265,160, 265,370, 355,370);
+      // sun
+      circle(440,110,35);
+    },
+    points: [
+      {x:260,y:405,label:"جسم القارب"},
+      {x:215,y:300,label:"الشراع الكبير"},
+      {x:305,y:300,label:"الشراع الصغير"},
+      {x:440,y:110,label:"الشمس"},
+    ]
+  },
+  {
+    title: "قلعة صغيرة",
+    stars: 4,
+    draw(){
+      setupStroke();
+      // tower body
+      rect(170,220,180,200);
+      // roof (يشارك الحافة العلوية مع البرج)
+      triangle(170,220, 350,220, 260,110);
+      // door (يشارك الحافة السفلية مع البرج)
+      rect(230,340,60,80);
+      // windows (داخل البرج)
+      circle(205,280,18);
+      circle(315,280,18);
+      // flag (فجوة فوق السقف)
+      triangle(258,58, 318,88, 258,88);
+    },
+    points: [
+      {x:185,y:400,label:"البرج"},
+      {x:260,y:180,label:"السقف"},
+      {x:260,y:390,label:"الباب"},
+      {x:205,y:280,label:"النافذة اليسرى"},
+      {x:315,y:280,label:"النافذة اليمنى"},
+      {x:277,y:78,label:"العلم"},
+    ]
+  },
+  {
+    title: "ديناصور ودود",
+    stars: 5,
+    draw(){
+      setupStroke();
+      // body
+      ellipse(280,300,120,75,0);
+      // head (فجوة عن الجسم)
+      circle(130,250,55);
+      // legs
+      rect(210,365,35,90);
+      rect(320,365,35,90);
+      // tail (فجوة عن الجسم)
+      triangle(385,260, 470,220, 460,300);
+      // back spikes (فجوة فوق الجسم)
+      triangle(150,190, 175,150, 200,195);
+      triangle(220,175, 245,135, 270,180);
+      triangle(290,180, 315,140, 340,185);
+      // eye (داخل الرأس)
+      circle(118,240,15);
+    },
+    points: [
+      {x:280,y:300,label:"الجسم"},
+      {x:130,y:270,label:"الرأس"},
+      {x:227,y:410,label:"الرِجل الأولى"},
+      {x:337,y:410,label:"الرِجل الثانية"},
+      {x:430,y:255,label:"الذيل"},
+      {x:175,y:180,label:"الشوكة الأولى"},
+      {x:245,y:165,label:"الشوكة الثانية"},
+      {x:315,y:170,label:"الشوكة الثالثة"},
+      {x:118,y:240,label:"العين"},
+    ]
+  },
 ];
 
 /* ---------------------------- حالة اللعبة ---------------------------- */
 let currentLevel = 0;
-let unlocked = [true, false, false, false, false];
-let completed = [false, false, false, false, false];
+let unlocked = LEVELS.map((_, i)=> i===0);
+let completed = LEVELS.map(()=> false);
 let selectedColor = '#FF6B6B';
 let isEraser = false;
 let brushRadius = 16;
@@ -628,6 +804,7 @@ function loadLevel(i){
     mask: maskFromReference(Math.round(p.x), Math.round(p.y))
   })).filter(r=>r.mask); // نتجاهل أي نقطة وقعت خطأً على خط الرسم
   document.getElementById('nextBtn').style.display = completed[i] ? 'inline-block' : 'none';
+  updateProgressBar(0);
   buildLevelSelector();
 }
 
@@ -710,9 +887,20 @@ function strokeLine(x0,y0,x1,y1,rgb){
 }
 
 /* ---------------------------- تحقّق الفوز ---------------------------- */
+const FULL_FILL_RATIO = 0.95; // لازم يلوّن شبه كامل الشكل (مو نص المنطقة بس) عشان يفوز
+
+function updateProgressBar(overallPct){
+  const fill = document.getElementById('progressFill');
+  const pct = document.getElementById('progressPct');
+  if(fill) fill.style.width = Math.round(overallPct*100) + '%';
+  if(pct) pct.textContent = Math.round(overallPct*100) + '%';
+}
+
 function checkWin(){
   if(!regionMasks.length) return;
   const finalData = ctx.getImageData(0,0,W,H).data;
+
+  let grandTotal = 0, grandColored = 0;
 
   const allColored = regionMasks.every(region=>{
     let total=0, colored=0;
@@ -723,8 +911,12 @@ function checkWin(){
       const brightness = (finalData[i]+finalData[i+1]+finalData[i+2])/3;
       if(brightness < 245) colored++;
     }
-    return total===0 || (colored/total) >= 0.55; // 55% تلوين كافٍ لاعتبار المنطقة مكتملة
+    grandTotal += total;
+    grandColored += colored;
+    return total===0 || (colored/total) >= FULL_FILL_RATIO;
   });
+
+  updateProgressBar(grandTotal===0 ? 0 : grandColored/grandTotal);
 
   if(allColored && !completed[currentLevel]){
     completed[currentLevel] = true;
